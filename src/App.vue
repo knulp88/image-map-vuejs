@@ -5,15 +5,36 @@
 </template>
 
 <script>
+import firebase from './firebase/firebase'
 export default {
-  name: 'App'
+  name: 'App',
+  mounted () {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        console.log(user)
+        this.$store.commit('LOGIN_SUCCESS')
+      } else {
+        console.log('log out')
+        console.log(this.$store.state.authentication.isLoggedIn)
+      }
+    })
+  }
 }
 </script>
 
 <style lang="less">
 /* GLOBAL */
 // reset base CSS
-html,body,h1,h2,h3,h4,h5,h6,ul,li,
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+li,
 p {
   margin: 0;
   padding: 0;
@@ -27,13 +48,12 @@ img {
 
 // Variables
 @mainbgcolor : #eaeaea;
+@colornavy : #2c3e50;
 
-html {
+html,
+body {
   background: @mainbgcolor;
-}
-body{
   // Set base font size 10px
-  font-size: 10px;
 }
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
