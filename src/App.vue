@@ -9,6 +9,7 @@ import firebase from './firebase/firebase'
 export default {
   name: 'App',
   mounted () {
+    // firebase authentication observer
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         console.log(user)

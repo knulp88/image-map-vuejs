@@ -28,15 +28,26 @@
       .box
         label.label E-mail
         p.control
-          input.input(type='email' placeholder='e-mail')
+          input.input(
+            type='email'
+            placeholder='e-mail'
+            v-model='sEmail'
+          )
         label.label Password
         p.control
-          input.input(type='password' placeholder='')
+          input.input(
+            type='password'
+            placeholder=''
+            v-model='sPassword'
+          )
         .btn-box
-          button.button.is-primary.is-medium SUBMIT
+          button.button.is-primary.is-medium(
+            @click="signup(sEmail, sPassword)"
+          ) SUBMIT
 </template>
+
 <script>
-import fb from '../firebase/firebase'
+import firebase from '../firebase/firebase'
 export default {
   data () {
     return {
@@ -47,7 +58,7 @@ export default {
   },
   firebase () {
     return {
-      testData: fb.database().ref('testDb')
+      testData: firebase.database().ref('testDb')
     }
   },
   mounted () {
@@ -56,13 +67,28 @@ export default {
     }
   },
   methods: {
+    signup (sEmail, sPassword) {
+      firebase.auth().createUserWithEmailAndPassword(sEmail, sPassword).then(() => {
+        console.log('resist success')
+        this.authType = 'login'
+      }).catch((error) => {
+        const errorMessage = error.message
+        this.$notify.open({
+          content: errorMessage,
+          icon: 'smile-o',
+          placement: 'left-center',
+          transition: 'bounce',
+          type: 'danger'
+        })
+      })
+    },
     login (email, password) {
-      fb.auth().signInWithEmailAndPassword(email, password).then(() => {
-        this.$store.dispatch('logout')
+      firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+        this.$store.dispatch('login')
         this.$router.push({name: 'main'})
       }).catch((error) => {
-        // var errorCode = error.code
-        var errorMessage = error.message
+        // const errorCode = error.code
+        const errorMessage = error.message
         this.$notify.open({
           content: errorMessage,
           icon: 'smile-o',
@@ -75,6 +101,7 @@ export default {
   }
 }
 </script>
+
 <style lang="less" scoped>
 .auth {
   margin-top: 200px;
