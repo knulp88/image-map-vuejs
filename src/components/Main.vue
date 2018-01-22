@@ -22,24 +22,37 @@
     images-area(
       v-if="isLoggedIn"
     )
+    .footer(v-if="isLoggedIn") fooooooooter
 </template>
 
 <script>
-import firebase from '../firebase/firebase'
+import firebase from '../assets/firebase/firebase'
 import ImagesArea from './ImagesArea'
 
 export default {
   data () {
     return {
-      isLoggedIn: null,
-      userEmail: firebase.auth().currentUser.email
+      isLoggedIn: false,
+      userEmail: ''
     }
   },
   components: {
     'images-area': ImagesArea
   },
   mounted () {
-    this.isLoggedIn = this.$store.state.authentication.isLoggedIn
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        console.log(user)
+        this.$store.commit('LOGIN_SUCCESS')
+        this.$nextTick(() => {
+          this.isLoggedIn = this.$store.state.authentication.isLoggedIn
+          this.userEmail = firebase.auth().currentUser.email
+        })
+      } else {
+        console.log('log out')
+        console.log(this.$store.state.authentication.isLoggedIn)
+      }
+    })
   },
   methods: {
     toAuth (inOut) {
@@ -59,12 +72,27 @@ export default {
 
 <style lang="less">
 .mainContainer {
+  position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   flex-direction: column;
   align-items: center;
+  height: 100%;
   background: #eaeaea;
+  .footer{
+    width: 100%;
+    height: 25px;
+    padding: 0;
+    border-top: 1px solid #afafaf;
+    background: #fff;
+    font-size: 12px;
+    line-height: 25px;
+  }
   .mainDesc{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 100%;
     .headingIcon {
       display: block;
       margin: 2px 0 3px;
@@ -87,7 +115,7 @@ export default {
     }
   }
   .mainDesc.mainBar{
-    display: flex;
+    flex: none;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;

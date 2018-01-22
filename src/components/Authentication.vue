@@ -47,13 +47,15 @@
 </template>
 
 <script>
-import firebase from '../firebase/firebase'
+import firebase from '../assets/firebase/firebase'
 export default {
   data () {
     return {
       authType: this.$route.params.inOut,
       email: '',
-      password: ''
+      password: '',
+      sEmail: '',
+      sPassword: ''
     }
   },
   firebase () {
@@ -71,6 +73,13 @@ export default {
       firebase.auth().createUserWithEmailAndPassword(sEmail, sPassword).then(() => {
         console.log('resist success')
         this.authType = 'login'
+        this.$notify.open({
+          content: 'Sign up Success',
+          icon: 'smile-o',
+          placement: 'left-center',
+          transition: 'bounce',
+          type: 'primary'
+        })
       }).catch((error) => {
         const errorMessage = error.message
         this.$notify.open({
@@ -85,6 +94,7 @@ export default {
     login (email, password) {
       firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
         this.$store.dispatch('login')
+        this.$ls.set('token')
         this.$router.push({name: 'main'})
       }).catch((error) => {
         // const errorCode = error.code

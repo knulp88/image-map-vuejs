@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "firebase": "^4.8.2",
+    "lodash": "^4.17.4",
     "vue": "^2.5.2",
     "vue-blu": "^0.1.9",
     "vue-ls": "^2.3.3",

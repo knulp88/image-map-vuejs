@@ -3,9 +3,9 @@ import Vuex from 'vuex'
 // import * as types from './mutation-types'
 
 import authentication from './modules/authentication'
+import images from './modules/images'
 
 const state = {
-
 }
 
 const mutations = {
@@ -29,6 +29,7 @@ export default new Vuex.Store({
   actions,
   getters,
   modules: {
-    authentication
+    authentication,
+    images
   }
 })

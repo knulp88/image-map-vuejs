@@ -5,21 +5,8 @@
 </template>
 
 <script>
-import firebase from './firebase/firebase'
 export default {
-  name: 'App',
-  mounted () {
-    // firebase authentication observer
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        console.log(user)
-        this.$store.commit('LOGIN_SUCCESS')
-      } else {
-        console.log('log out')
-        console.log(this.$store.state.authentication.isLoggedIn)
-      }
-    })
-  }
+  name: 'App'
 }
 </script>
 
@@ -39,6 +26,9 @@ li,
 p {
   margin: 0;
   padding: 0;
+}
+html,body{
+  height: 100%;
 }
 li {
   list-style: none;
@@ -62,5 +52,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  height: 100%;
 }
 </style>
