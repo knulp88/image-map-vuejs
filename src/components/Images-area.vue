@@ -1,6 +1,7 @@
 <template lang="pug">
   .wrap
     .dropArea(
+      v-if="!$store.state.images.images.length"
       @drop="onDrop($event)"
       @dragover="onDragOver($event)"
       @dragend="onDragEnd($event)"
@@ -10,21 +11,21 @@
       button.button.is-primary.is-large UPLOAD IMAGES
     //- loaded images
     .imagesArea( v-if="!!$store.state.images.images.length" )
-      .items(
-        v-for="(image) in $store.state.images.images"
-        :key="image.name"
-      )
-        img( :src="image.base64" )
-
+      contSlide
 </template>
 
 <script>
+import ContentSlide from '@/components/Content-slide'
+import 'swiper/dist/css/swiper.css'
 export default {
   name: 'images-area',
   data () {
     return {
       imageState: null
     }
+  },
+  components: {
+    contSlide: ContentSlide
   },
   methods: {
     onDrop (e) {
@@ -56,7 +57,11 @@ export default {
           fileReader.readAsDataURL(dt.files[i])
 
           fileReader.onload = e => {
-            console.log(e.target.result)
+            console.log(e.target)
+            this.$store.commit('ADD_IMAGES', {
+              // name: dt.files[i].name,
+              base64: e.target.result
+            })
           }
         }
       }
@@ -83,8 +88,11 @@ export default {
 <style lang="less" scoped>
   .wrap{
     width:100%;
-    overflow-y: scroll;
+    flex: 1;
     .dropArea{
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
       border: 4px dashed #2c3e506d;
       margin: 0 auto;
       padding: 50px 20px;
@@ -94,6 +102,11 @@ export default {
         font-size: 30px;
         font-weight: 700;
       }
+    }
+    .imagesArea{
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
   }
 </style>

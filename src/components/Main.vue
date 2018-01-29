@@ -27,7 +27,7 @@
 
 <script>
 import firebase from '../assets/firebase/firebase'
-import ImagesArea from './ImagesArea'
+import ImagesArea from '@/components/Images-area'
 
 export default {
   data () {
@@ -42,7 +42,7 @@ export default {
   mounted () {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(user)
+        console.log('is logged in')
         this.$store.commit('LOGIN_SUCCESS')
         this.$nextTick(() => {
           this.isLoggedIn = this.$store.state.authentication.isLoggedIn

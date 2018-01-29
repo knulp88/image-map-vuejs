@@ -58,11 +58,11 @@ export default {
       sPassword: ''
     }
   },
-  firebase () {
-    return {
-      testData: firebase.database().ref('testDb')
-    }
-  },
+  // firebase () {
+  //   return {
+  //     testData: firebase.database().ref('testDb')
+  //   }
+  // },
   mounted () {
     if (!this.authType) {
       this.$router.push({name: 'main'})

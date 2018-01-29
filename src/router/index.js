@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import {Main, Authentication} from '@/components'
+import Main from '@/components/Main'
+import Authentication from '@/components/Authentication'
 
 Vue.use(Router)
 
