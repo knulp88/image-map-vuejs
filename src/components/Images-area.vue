@@ -53,13 +53,11 @@ export default {
         for (let i = 0; i < dt.files.length; i++) {
           // console.log('... file[' + i + '].name = ' + dt.files[i].name)
           const fileReader = new FileReader()
-
+          const fileName = dt.files[i].name
           fileReader.readAsDataURL(dt.files[i])
-
           fileReader.onload = e => {
-            console.log(e.target)
             this.$store.commit('ADD_IMAGES', {
-              // name: dt.files[i].name,
+              name: fileName,
               base64: e.target.result
             })
           }

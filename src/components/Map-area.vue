@@ -75,8 +75,8 @@ export default {
     margin: 30px 30px;
     justify-content: center;
     .map-item.is-active{
-      margin-top: -1px;
-      border: 1px solid red;
+      margin-top: -2px;
+      border: 2px solid #3c81df;
     }
     canvas{
       position: absolute;
