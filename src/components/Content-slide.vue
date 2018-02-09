@@ -1,5 +1,8 @@
 <template lang="pug">
-  .slide-wrap
+  .slide-wrap(
+    @mousemove="alignDragMove($event)"
+    @mouseup="alignDragEnd($event)"
+  )
     .content-swiper(
       @click='inactiveMap($event)'
     )
@@ -17,21 +20,19 @@
             :imgIndex="index"
           )
     .nav-swiper(
-      @drop="onDrop($event)"
       @dragstart="onDragStart($event)"
-      @dragover="onDragOver($event)"
-      @dragend="onDragEnd($event)"
     )
       swiper(
           :options='navSwiperOption'
           ref='navSwiper'
         )
-        swiper-slide.items(
+        swiper-slide.nav-swiper-item(
           v-for="(image, index) in $store.state.images.images"
           :key="image.length"
         )
           .thumb(
             @click="contSwiperSlideTo($event), inactiveMap($event)"
+            @mousedown="alignDragStart($event)"
           )
             img( :src="image.base64" )
     .swiper-button-prev(
@@ -72,24 +73,14 @@ export default {
         simulateTouch: false,
         slidesPerView: 7,
         centeredSlides: true,
-        spaceBetween: 50,
-        on: {
-          resize: () => {
-            // nav swiper slide items full width reset
-            this.getNavSlideFullWidth(true)
-          }
-        }
+        spaceBetween: 50
       },
-      dragData: {
-        navSlideFullWidth: 0,
-        grabSlide: null,
-        grabSlideIndex: 0
+      navSwiperData: {
+        grabbedSlide: null
       }
     }
   },
-  mounted () {
-    this.getNavSlideFullWidth(true)
-  },
+  mounted () {},
   watch: {
     sliderState () {
       if (this.sliderState) {
@@ -109,70 +100,42 @@ export default {
       }
     },
     contSwiperSlideTo (e) {
-      // this code need refactoring to finding DOM targets parentsnode
-      // https://github.com/nefe/You-Dont-Need-jQuery/blob/master/README.ko-KR.md
-      const clickedTarget = e.target.parentElement.parentElement
+      const clickedTarget = e.target.closest('.swiper-slide')
       this.contSwiper.slideTo(this.getNavSlideIndex(clickedTarget))
     },
-    getNavSlideIndex (target) {
-      const swiperSlides = document.querySelectorAll('.nav-swiper .swiper-slide')
-      for (const [index, value] of Object.entries(swiperSlides)) {
-        if (value === target) {
-          return parseInt(index)
+    getNavSlideIndex (swiperSlide) {
+      if (swiperSlide.classList.contains('swiper-slide')) {
+        const swiperSlides = document.querySelectorAll('.nav-swiper .swiper-slide')
+        for (const [index, value] of Object.entries(swiperSlides)) {
+          if (value === swiperSlide) {
+            return parseInt(index)
+          }
         }
       }
     },
-    // true return width + margin-right, false return width
-    getNavSlideFullWidth (bool) {
-      const navSwiperSlide = document.querySelectorAll('.nav-swiper .swiper-slide')
-      const slideWidth = parseFloat(navSwiperSlide[0].style.width.replace('px', ''))
-      this.dragData.navSlideFullWidth = bool ? slideWidth + this.navSwiperOption.spaceBetween : slideWidth
-      return bool ? slideWidth + this.navSwiperOption.spaceBetween : slideWidth
-    },
-    alignNavSlidesOnDrop (e) {
-      const { grabSlide } = this.dragData
-      const thumbNode = grabSlide.querySelectorAll('.thumb')
-      const removeMotion = () => {
-        thumbNode[0].style.opacity = 0
-        grabSlide.style.width = 0
-        grabSlide.style.marginRight = 0 + 'px'
-      }
-      const rollbackMotion = () => {
-        thumbNode[0].style.opacity = 1
-        console.log(this.dragData.navSlideFullWidth)
-        grabSlide.style.width = (this.dragData.navSlideFullWidth - this.navSwiperOption.spaceBetween) + 'px'
-        // console.log((this.dragData.navSlideFullWidth - this.navSwiperOption.spaceBetween) + 'px')
-        grabSlide.style.marginRight = this.navSwiperOption.spaceBetween + 'px'
-      }
-      if (e.type === 'dragstart') {
-        removeMotion()
-        // this.$store.commit('REMOVE_IMAGES', { grabSlide, grabSlideIndex })
-      } else if (e.type === 'dragend') {
-        rollbackMotion()
-      }
-    },
-    // DRAG AND DROP
-    onDrop (e) {
-      e.preventDefault()
-      // this.$parent.onDrop(e)
-    },
+
     onDragStart (e) {
-      this.dragData.grabSlide = e.target.parentElement.parentElement
-      this.dragData.grabSlideIndex = this.getNavSlideIndex(this.dragData.grabSlide)
-
-      this.alignNavSlidesOnDrop(e)
-
-      // console.log(this.dragData.grabSlideIndex)
-    },
-    onDragOver (e) {
       e.preventDefault()
-      // if (!e.target.classList.contains('swiper-wrapper')) return
-      // console.log(e.offsetX + '   ' + e.offsetY)
+      // console.log(e.target.closest('.swiper-slide'))
     },
-    onDragEnd (e) {
-      e.preventDefault()
-      this.alignNavSlidesOnDrop(e)
-      // this.$parent.onDragEnd(e)
+    alignDragStart (e) {
+      this.navSwiperData.grabbedSlide = e.target.closest('.swiper-slide')
+    },
+    alignDragMove (e) {
+      const { grabbedSlide } = this.navSwiperData
+
+      if (grabbedSlide) {
+        const { offsetX, offsetY } = e
+        console.log(offsetX + '  ' + offsetY)
+      }
+    },
+    alignDragEnd (e) {
+      if (e.target.closest('.nav-swiper')) {
+        console.log('nav swiper inside')
+      } else {
+        console.log('nav swiper outside')
+      }
+      this.navSwiperData.grabbedSlide = null
     }
   },
   computed: {
@@ -214,45 +177,45 @@ export default {
   }
 }
 </script>
-<style lang="less">
-  .slide-wrap{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .content-swiper{
-    height: 100%;
-  }
-  .nav-swiper{
-    display: flex;
-    width: 100%;
+<style lang="less" scoped>
+.slide-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.content-swiper {
+  height: 100%;
+}
+.nav-swiper {
+  display: flex;
+  width: 100%;
+  height: 80px;
+  background: #fff;
+  border-top: 1px solid #afafaf;
+  .nav-swiper-item {
     height: 80px;
-    background: #fff;
-    border-top: 1px solid #afafaf;
-    .items{
-      height: 80px;
-      overflow: hidden;
-      transition: .2s ease-out;
-      transition-property: width, margin;
-      overflow: hidden;
-      .thumb{
-        margin-top: 20px;
-        border: 1px solid #afafaf;
-        opacity: 1;
-        cursor: pointer;
-        transition: .2s ease-out;
-        transition-property: opacity;
-      }
-      &.swiper-slide-active{
-        .thumb{
-          margin-top: 10px;
-          border: 2px solid #3c81df;
-        }
-      }
+    overflow: hidden;
+    transition: 0.2s ease-out;
+    transition-property: width, margin;
+    overflow: hidden;
+    .thumb {
+      margin-top: 20px;
+      border: 1px solid #afafaf;
+      opacity: 1;
+      cursor: pointer;
+      transition: 0.2s ease-out;
+      transition-property: opacity;
     }
-    .swiper-container {
-      width: 100%;
-      height: 100%;
+    &.swiper-slide-active {
+      .thumb {
+        margin-top: 10px;
+        border: 2px solid #3c81df;
+      }
     }
   }
+  .swiper-container {
+    width: 100%;
+    height: 100%;
+  }
+}
 </style>
