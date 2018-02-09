@@ -8,7 +8,7 @@ import ls from './assets/vuels/vuels'
 import VueBlu from 'vue-blu'
 import VueFire from 'vuefire'
 import 'vue-blu/dist/css/vue-blu.min.css'
-// import fb from './firebase/firebase'
+import './assets/polyfill/index'
 
 Vue.use(VueBlu)
 Vue.use(VueFire)
