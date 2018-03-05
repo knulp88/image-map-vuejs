@@ -94,7 +94,6 @@ export default {
     login (email, password) {
       firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
         this.$store.dispatch('login')
-        this.$ls.set('token')
         this.$router.push({name: 'main'})
       }).catch((error) => {
         // const errorCode = error.code

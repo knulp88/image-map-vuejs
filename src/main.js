@@ -4,7 +4,6 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store/index'
-import ls from './assets/vuels/vuels'
 import VueBlu from 'vue-blu'
 import VueFire from 'vuefire'
 import 'vue-blu/dist/css/vue-blu.min.css'
@@ -20,7 +19,6 @@ new Vue({
   el: '#app',
   router,
   store,
-  ls,
   components: { App },
   template: '<App/>'
 })

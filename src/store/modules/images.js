@@ -11,11 +11,15 @@ const mutations = {
   [types.ADD_IMAGES] (state, images) {
     state.images.push(images)
   },
-  [types.REMOVE_IMAGES] (state, payload) {
-    state.images.splice(payload.grabSlideIndex, 1)
+  [types.REMOVE_IMAGES] (state, grabbedSlideIndex) {
+    state.images.splice(grabbedSlideIndex, 1)
   },
   [types.SORT_IMAGES] (state, payload) {
-    console.log(payload)
+    const insertImage = state.images[payload.grabbedSlideIndex]
+    state.images.splice(payload.grabbedSlideIndex, 1)
+    console.log(state.images)
+    state.images.splice(payload.insertIndex, 0, insertImage)
+    console.log(state.images)
   },
   [types.SLIDER_STATE] (state, element) {
     state.sliderState = element
@@ -31,7 +35,8 @@ const actions = {
 
 const getters = {
   sliderState: state => state.sliderState,
-  activeMap: state => state.activeMap
+  activeMap: state => state.activeMap,
+  images: state => state.images
 }
 
 export default {
