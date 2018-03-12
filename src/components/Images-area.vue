@@ -11,11 +11,13 @@
       button.button.is-primary.is-large UPLOAD IMAGES
     //- loaded images
     .imagesArea( v-if="!!$store.state.images.images.length" )
-      contSlide
+      cont-slide
+      side-bar
 </template>
 
 <script>
 import ContentSlide from '@/components/Content-slide'
+import SideBar from '@/components/Side-bar'
 import 'swiper/dist/css/swiper.css'
 export default {
   name: 'images-area',
@@ -25,7 +27,8 @@ export default {
     }
   },
   components: {
-    contSlide: ContentSlide
+    'cont-slide': ContentSlide,
+    'side-bar': SideBar
   },
   methods: {
     onDrop (e) {
@@ -103,7 +106,7 @@ export default {
     }
     .imagesArea{
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       height: 100%;
     }
   }

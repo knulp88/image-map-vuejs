@@ -17,9 +17,7 @@ const mutations = {
   [types.SORT_IMAGES] (state, payload) {
     const insertImage = state.images[payload.grabbedSlideIndex]
     state.images.splice(payload.grabbedSlideIndex, 1)
-    console.log(state.images)
     state.images.splice(payload.insertIndex, 0, insertImage)
-    console.log(state.images)
   },
   [types.SLIDER_STATE] (state, element) {
     state.sliderState = element

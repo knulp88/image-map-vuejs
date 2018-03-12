@@ -72,7 +72,7 @@ export default {
   .map-section{
     position: relative;
     display: flex;
-    margin: 30px 30px;
+    margin: 30px 48px;
     justify-content: center;
     .map-item.is-active{
       margin-top: -2px;

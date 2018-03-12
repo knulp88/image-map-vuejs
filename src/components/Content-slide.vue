@@ -1,7 +1,5 @@
 <template lang="pug">
   .slide-wrap(
-    @mousemove.left="onDragMove($event)"
-    @mouseup.left="onDragEnd($event)"
   )
     .content-swiper(
       @click='inactiveMap($event)'
@@ -14,7 +12,6 @@
           v-for="(image, index) in images"
           :key="image.length"
         )
-          //- img(:src="image.base64")
           map-area(
             :imgData="image.base64"
             :imgIndex="index"
@@ -23,8 +20,6 @@
       @drop="onDropAddImage($event)"
       @dragover="onDragOverAddImage($event)"
       @dragend="onDragEndAddImage($event)"
-      @mousemove="getSortIndex($event)"
-
     )
       swiper(
           :options='navSwiperOption'
@@ -37,7 +32,6 @@
         )
           .thumb(
             @click="contSwiperSlideTo($event), inactiveMap($event)"
-            @mousedown.left="onDragStart($event)"
             @mouseover="slideInfo($event)"
             @mouseleave="slideInfo($event)"
           )
@@ -85,12 +79,7 @@ export default {
         simulateTouch: false,
         slidesPerView: 7,
         centeredSlides: true,
-        spaceBetween: 50,
-        on: {
-          slideChange: () => {
-            this.setSortPosition()
-          }
-        }
+        spaceBetween: 50
       },
       navSwiperData: {
         grabbedSlide: null,
@@ -122,7 +111,6 @@ export default {
           value.style.transform = 'translateX(' + this.getNavSwiperPosition() * index + 'px)'
         }
       }
-      this.setSortPosition()
     }, 200))
     // mouse out on window
     Event.addEventListener(window, 'mouseout-window', (e) => {
@@ -133,7 +121,6 @@ export default {
         this.onDragEnd(e)
       }
     })
-    this.setSortPosition()
   },
   methods: {
     removeSlide (e) {
@@ -175,54 +162,6 @@ export default {
         }
       }
     },
-    getSortIndex (e) {
-      if (this.navSwiperData.grabbedSlide) {
-        const {insertPosition, grabbedSlide} = this.navSwiperData
-
-        for (const [index, value] of Object.entries(insertPosition)) {
-          if (value.end > e.clientX && value.start < e.clientX && grabbedSlide) {
-            this.navSwiperData.insertIndex = value.insertIndex
-            return index
-          }
-        }
-      }
-    },
-    setSortPosition () {
-      const { spaceBetween, slidesPerView } = this.navSwiperOption
-      const {activeIndex} = this.navSwiper
-      const currentViewStartIndex = activeIndex - Math.floor(slidesPerView / 2)
-      const lastSlideIndex = this.navSwiper.slides.length - 1
-      const slideWidth = this.getNavSwiperPosition() - spaceBetween
-      const slideFullWidth = parseFloat(this.getNavSwiperPosition())
-      const insertPosition = []
-      const getFirstLastIndex = (i) => {
-        if (currentViewStartIndex + i < 0) {
-          return 0
-        } else if (currentViewStartIndex + i > lastSlideIndex) {
-          return lastSlideIndex
-        } else {
-          return currentViewStartIndex + i
-        }
-      }
-      for (let i = 0; i < slidesPerView + 1; i++) {
-        if (i === 0) {
-          insertPosition.push({
-            start: 0,
-            end: slideWidth / 2,
-            insertIndex: getFirstLastIndex(i)
-          })
-        } else {
-          insertPosition.push({
-            start: slideWidth / 2 + slideFullWidth * (i - 1),
-            end: i === slidesPerView
-              ? slideWidth + slideFullWidth * (i - 1)
-              : slideWidth / 2 + slideFullWidth * i,
-            insertIndex: getFirstLastIndex(i)
-          })
-        }
-      }
-      this.navSwiperData.insertPosition = insertPosition
-    },
     inactiveMap (e) {
       const activeMap = this.activeMap
       if (activeMap) {
@@ -258,84 +197,6 @@ export default {
     },
     onDragEndAddImage (e) {
       this.$parent.onDragEnd(e)
-    },
-    onDragStart (e) {
-      e.preventDefault()
-      this.navSwiperData.grabbedSlide = e.target.closest('.swiper-slide')
-      this.navSwiperData.grabbedSlide.classList.remove('transition')
-      const initialPointX = parseFloat(this.navSwiperData.grabbedSlide.style.transform.replace('translateX(', '').replace('px)', ''))
-      this.navSwiperData.grabbedSlide.gapPointer = [e.clientX - initialPointX, e.clientX, e.clientY]
-    },
-    onDragMove (e) {
-      const { grabbedSlide } = this.navSwiperData
-      const wrapper = document.querySelector('.nav-swiper .swiper-wrapper')
-      if (grabbedSlide && !wrapper.classList.contains('is-animate')) {
-        const result = 'translateX(' + (e.clientX - grabbedSlide.gapPointer[0]) + 'px)'
-        grabbedSlide.style.transform = result
-        grabbedSlide.style.zIndex = 10
-
-        const slides = Array.slice(this.navSwiper.slides, 0)
-        slides.splice(this.getNavSlideIndex(grabbedSlide), 1)
-        for (const [index, value] of Object.entries(slides)) {
-          value.style.transform = 'translateX(' + this.getNavSwiperPosition() * index + 'px)'
-        }
-      }
-    },
-    onDragEnd (e) {
-      const { grabbedSlide } = this.navSwiperData
-      if (grabbedSlide) {
-        const isMoved = grabbedSlide.gapPointer[1] !== e.clientX || grabbedSlide.gapPointer[2] !== e.clientY
-        const {insertIndex} = this.navSwiperData
-        const grabbedSlideIndex = this.getNavSlideIndex(grabbedSlide)
-        if (isMoved) {
-          const slides = Array.slice(this.navSwiper.slides, 0)
-          // slides position reinit
-          for (const [index, value] of Object.entries(slides)) {
-            const idx = parseFloat(index)
-            if (insertIndex > grabbedSlideIndex) {
-              if (insertIndex > idx) {
-                value.style.transform = 'translateX(' + this.getNavSwiperPosition() * idx + 'px)'
-              } else if (idx <= insertIndex && idx > grabbedSlideIndex) {
-                value.style.transform = 'translateX(' + this.getNavSwiperPosition() * (idx - 1) + 'px)'
-              } else {
-                if (idx === grabbedSlideIndex) {
-                  value.style.transform = 'translateX(' + this.getNavSwiperPosition() * insertIndex + 'px)'
-                } else {
-                  value.style.transform = 'translateX(' + this.getNavSwiperPosition() * idx + 'px)'
-                }
-              }
-            } else if (insertIndex === grabbedSlideIndex) {
-              value.style.transform = 'translateX(' + this.getNavSwiperPosition() * idx + 'px)'
-            } else {
-              if (insertIndex > idx) {
-                value.style.transform = 'translateX(' + this.getNavSwiperPosition() * idx + 'px)'
-              } else if (idx >= insertIndex && idx < grabbedSlideIndex) {
-                value.style.transform = 'translateX(' + this.getNavSwiperPosition() * (idx + 1) + 'px)'
-              } else {
-                if (idx === grabbedSlideIndex) {
-                  value.style.transform = 'translateX(' + this.getNavSwiperPosition() * insertIndex + 'px)'
-                } else {
-                  value.style.transform = 'translateX(' + this.getNavSwiperPosition() * idx + 'px)'
-                }
-              }
-            }
-          }
-          // Event.addEventListener(grabbedSlide, 'transitionend-gSlide', () => {
-          //   this.contSwiper.slideTo(this.getNavSlideIndex(grabbedSlide))
-          //   Event.removeEventListener(grabbedSlide, 'transitionend-gSlide')
-          // })
-        }
-        grabbedSlide.classList.add('transition')
-        this.navSwiperData.grabbedSlide = null
-        Event.addEventListener(grabbedSlide, 'transitionend-alignSlide', () => {
-          grabbedSlide.style.zIndex = 1
-          this.$store.commit('SORT_IMAGES', {
-            insertIndex: this.navSwiperData.insertIndex,
-            grabbedSlideIndex: this.getNavSlideIndex(grabbedSlide)
-          })
-          Event.removeEventListener(grabbedSlide, 'transitionend-alignSlide')
-        })
-      }
     }
   },
   computed: {
@@ -360,11 +221,16 @@ export default {
 </script>
 <style lang="less" scoped>
 .slide-wrap {
+  position: relative;
   display: flex;
+  flex: 1;
+  width: 100%;
   height: 100%;
   flex-direction: column;
+  overflow: hidden;
 }
 .content-swiper {
+  width: 100%;
   height: 100%;
 }
 .nav-swiper {
@@ -390,7 +256,9 @@ export default {
     .thumb {
       position: relative;
       margin-top: 20px;
+      min-height: 400px;
       border: 1px solid #afafaf;
+      background: #eaeaea;
       opacity: 1;
       cursor: pointer;
       transition: 0.2s ease-out;

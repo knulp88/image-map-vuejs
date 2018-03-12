@@ -22,9 +22,6 @@
     images-area(
       v-if="isLoggedIn"
     )
-    //- .footer(
-    //-   v-if="isLoggedIn"
-    //- ) fooooooooter
 </template>
 
 <script>
