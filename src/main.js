@@ -3,13 +3,22 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store/index'
+import VueBlu from 'vue-blu'
+import VueFire from 'vuefire'
+import 'vue-blu/dist/css/vue-blu.min.css'
+import './assets/polyfill/index'
+
+Vue.use(VueBlu)
+Vue.use(VueFire)
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
+// eslint-disable-next-line
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })
